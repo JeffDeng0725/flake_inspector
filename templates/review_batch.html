@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Review Processed Images</h1>
+<h2>Upload Time: {{ batch.upload_time }}</h2>
+<ul>
+    {% for file in batch.processed_files %}
+        <li><a href="{{ url_for('processed_file', filename=file) }}">{{ file }}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}

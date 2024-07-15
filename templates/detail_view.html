@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Details for Scan: {{ scan_id }}</h1>
+<div class="image-viewer-container">
+    <div class="image-list-container">
+        <h2>Images:</h2>
+        <ul id="image_list">
+            {% for original, files in unique_files %}
+            <li><a href="javascript:void(0);" onclick="selectImage('{{ original }}')">{{ original }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="image-info-container">
+        <div id="image_info">
+            <h2 id="image_title"></h2>
+            <label for="threshold_select">Select Threshold:</label>
+            <select id="threshold_select" onchange="updateImages()"></select>
+            <div class="image-display">
+                <img id="contour_image" alt="Contour Image">
+                <img id="threshold_image" alt="Threshold Image">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const allFiles = JSON.parse('{{ file_details | tojson | safe }}');
+        let selectedFiles = [];
+
+        function selectImage(original) {
+            selectedFiles = allFiles.filter(file => file.original === original);
+            if (selectedFiles.length > 0) {
+                const title = document.getElementById('image_title');
+                title.innerText = `File: ${original}`;
+                const thresholdSelect = document.getElementById('threshold_select');
+                thresholdSelect.innerHTML = '';
+                selectedFiles.forEach(file => {
+                    const option = document.createElement('option');
+                    option.value = file.threshold;
+                    option.text = file.threshold;
+                    thresholdSelect.appendChild(option);
+                });
+                updateImages();
+            }
+        }
+
+        function updateImages() {
+            const selectedThreshold = document.getElementById('threshold_select').value;
+            const contourImage = document.getElementById('contour_image');
+            const thresholdImage = document.getElementById('threshold_image');
+            const selectedFile = selectedFiles.find(file => file.threshold == selectedThreshold);
+            contourImage.src = '{{ url_for("processed_file", filename="") }}' + selectedFile.contour_image;
+            thresholdImage.src = '{{ url_for("processed_file", filename="") }}' + selectedFile.threshold_image;
+        }
+
+        // Initialize the first image if available
+        if (Object.keys(allFiles).length > 0) {
+            selectImage(Object.keys(allFiles)[0]);
+        }
+    });
+</script>
+{% endblock %}

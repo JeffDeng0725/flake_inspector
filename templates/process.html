@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Upload Images for Processing</h1>
+<form id="uploadForm" method="post" enctype="multipart/form-data">
+    <input type="file" name="files" id="files" multiple>
+    <label for="low_threshold">Low Threshold:</label>
+    <input type="number" name="low_threshold" id="low_threshold" required>
+    <label for="high_threshold">High Threshold:</label>
+    <input type="number" name="high_threshold" id="high_threshold" required>
+    <label for="num_outputs">Number of Outputs:</label>
+    <input type="number" name="num_outputs" id="num_outputs" required>
+    <label for="channel">Channel:</label>
+    <select name="channel" id="channel" required>
+        <option value="red">Red</option>
+        <option value="green">Green</option>
+        <option value="blue">Blue</option>
+        <option value="gray">Gray</option>
+    </select>
+    <button type="submit">Upload</button>
+</form>
+<div id="loading" style="display:none;">
+    <p>Processing...</p>
+    <div id="progress-bar" style="width:100%; background-color:#f3f3f3;">
+        <div id="progress" style="width:0%; height:30px; background-color:#4caf50;"></div>
+    </div>
+</div>
+<script>
+    document.getElementById('uploadForm').onsubmit = function(event) {
+        event.preventDefault();
+        var formData = new FormData(this);
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '{{ url_for("process") }}', true);
+        
+        xhr.upload.onprogress = function(event) {
+            if (event.lengthComputable) {
+                var percentComplete = (event.loaded / event.total) * 100;
+                document.getElementById('progress').style.width = percentComplete + '%';
+            }
+        };
+
+        xhr.onloadstart = function() {
+            document.getElementById('loading').style.display = 'block';
+        };
+
+        xhr.onloadend = function() {
+            document.getElementById('loading').style.display = 'none';
+            if (xhr.status == 200) {
+                window.location.href = '{{ url_for("review") }}';
+            } else {
+                alert('Failed to upload files');
+            }
+        };
+
+        xhr.send(formData);
+    };
+</script>
+{% endblock %}

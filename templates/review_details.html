@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Uploaded on: {{ scan.upload_time }}</h1>
+<ul>
+    {% for file in scan.processed_files %}
+        <li>
+            <a href="{{ url_for('details', filename=file.original, upload_time=scan.upload_time) }}">
+                {{ file.original }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

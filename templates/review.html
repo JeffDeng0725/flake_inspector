@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Review Processed Images</h1>
+{% for scan in scans | sort(attribute='upload_time', reverse=true) %}
+<div class="upload-block">
+    <p>Upload Time: {{ scan.upload_time }}</p>
+    <a href="{{ url_for('details', scan_id=scan.scan_id, filename=scan.processed_files[0].original, upload_time=scan.upload_time) }}">View Details</a>
+</div>
+{% endfor %}
+{% endblock %}
